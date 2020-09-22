@@ -49,7 +49,7 @@
 			})		
 		}
 		
-		kakao.maps.event.addListener(map, 'dragend', getRestaurantList)
+		kakao.maps.event.addListener(map, 'center_changed', getRestaurantList)
 		
 		// 마커생성
 		function createMarker(item) {			

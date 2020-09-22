@@ -20,10 +20,8 @@ public class RestService {
    @Autowired
    private CommonMapper cMapper;
    
-   String selRestList(RestPARAM param) {
-       List<RestDMI> list = mapper.selRestList(param);
-          Gson gson = new Gson();
-          return gson.toJson(list);
+   public List<RestDMI> selRestList(RestPARAM param) {
+     return mapper.selRestList(param);
    }
    List<CodeVO> selCategoryList() {
 	   CodeVO p = new CodeVO();

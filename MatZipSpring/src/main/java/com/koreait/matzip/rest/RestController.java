@@ -51,10 +51,19 @@ public class RestController {
 	}
 	
 	@RequestMapping(value="/restReg" , method = RequestMethod.POST)
-		public String restReg(RestPARAM param, HttpSession hs) {
+	public String restReg(RestPARAM param, HttpSession hs) {
 			param.setI_user(SecurityUtils.getLoginUserPk(hs));
 			int result =service.insRest(param);
 			return "redirect:/rest/map";
+		}
+	@RequestMapping("/detail")
+	public String detail(RestPARAM param, Model model) {
+			RestDMI data = service.selRest(param);
+			
+			model.addAttribute("data", data);
+			model.addAttribute(Const.TITLE, data.getNm());
+			model.addAttribute(Const.VIEW, "rest/restDatail"); //파일명 적는곳
+			return ViewRef.TEMP_MENU_TEMP;
 		}
 	}
 

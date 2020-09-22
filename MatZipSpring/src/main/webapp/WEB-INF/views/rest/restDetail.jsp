@@ -32,7 +32,7 @@
 				<h2>- 추천 메뉴 -</h2>
 				<div>
 					<div><button type="button" onclick="addRecMenu()">추천 메뉴 추가</button></div>
-					<form id="recFrm" action="/restaurant/addRecMenusProc" enctype="multipart/form-data" method="post">
+					<form id="recFrm" action="/rest/addRecMenusProc" enctype="multipart/form-data" method="post">
 						<input type="hidden" name="i_rest" value="${data.i_rest}">
 						<div id="recItem"></div>
 						<div><input type="submit" value="등록"></div>
@@ -41,7 +41,7 @@
 				
 				<h2>- 메뉴 -</h2>
 				<div>
-					<form id="menuFrm" action="/restaurant/addMenusProc" enctype="multipart/form-data" method="post">
+					<form id="menuFrm" action="/rest/addMenusProc" enctype="multipart/form-data" method="post">
 						<input type="hidden" name="i_rest" value="${data.i_rest}">
 						<input type="file" name="menu_pic" multiple>
 						<div><input type="submit" value="등록"></div>
@@ -53,12 +53,12 @@
 				<div id="detail-header">
 					<div class="restaurant_title_wrap">
 						<span class="title">
-							<h1 class="restaurant_name">${data.nm}</h1>						
+							<h1 class="restaurant_name">${data.nm}</h1>
 						</span>
 					</div>
 					<div class="status branch_none">
-						<span class="cnt hit">${data.cntHits}</span>					
-						<span class="cnt favorite">${data.cntFavorite}</span>
+						<span class="cnt hit">${data.hits}</span>
+						<span class="cnt favorite">${data.cnt_favorite}</span>
 					</div>
 				</div>
 				<div>
@@ -147,7 +147,7 @@
 	addRecMenu()
 	function isDel() {
 		if(confirm('삭제 하시겠습니까?')) {
-			location.href = '/restaurant/restDel?i_rest=${data.i_rest}'
+			location.href = '/rest/restDel?i_rest=${data.i_rest}'
 		}
 	}
 </script>

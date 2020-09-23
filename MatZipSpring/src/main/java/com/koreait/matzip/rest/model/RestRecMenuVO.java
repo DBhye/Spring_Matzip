@@ -1,12 +1,13 @@
-package com.koreait.matzip.model;
+package com.koreait.matzip.rest.model;
 
-public class RestaurantRecommendMenuVO {
+public class RestRecMenuVO {
 	private int i_rest;
 	private int seq;
 	private String menu_nm;
 	private int menu_price;
 	private String menu_pic;
 	private int i_user;
+	
 	public int getI_user() {
 		return i_user;
 	}
@@ -28,11 +29,12 @@ public class RestaurantRecommendMenuVO {
 	public String getMenu_nm() {
 		return menu_nm;
 	}
-	public void setMenu_nm(String menu_nm) {
-		this.menu_nm = menu_nm;
-	}
+	
 	public int getMenu_price() {
 		return menu_price;
+	}
+	public void setMenu_nm(String menu_nm) {
+		this.menu_nm = menu_nm;
 	}
 	public void setMenu_price(int menu_price) {
 		this.menu_price = menu_price;

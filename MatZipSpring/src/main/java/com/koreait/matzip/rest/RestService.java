@@ -12,10 +12,13 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.koreait.matzip.CommonUtils;
+import com.koreait.matzip.Const;
 import com.koreait.matzip.FileUtils;
+import com.koreait.matzip.SecurityUtils;
 import com.koreait.matzip.model.CodeVO;
 import com.koreait.matzip.model.CommonMapper;
 import com.koreait.matzip.rest.model.RestDMI;
+import com.koreait.matzip.rest.model.RestFile;
 import com.koreait.matzip.rest.model.RestPARAM;
 import com.koreait.matzip.rest.model.RestRecMenuVO;
 
@@ -32,6 +35,12 @@ public class RestService {
    public List<RestDMI> selRestList(RestPARAM param) {
      return mapper.selRestList(param);
    }
+   
+   public List<RestRecMenuVO> selRestMenus(RestPARAM param) {
+	   return mapper.selRestMenus(param);
+   }
+   
+   
    List<CodeVO> selCategoryList() {
 	   CodeVO p = new CodeVO();
 	   p.setI_m(1); //음식점 카테고리 코드 = 1
@@ -59,13 +68,45 @@ public class RestService {
 	   return mapper.delRestMenu(param);
    }
    
-   public int insRecMenus(MultipartHttpServletRequest mReq) {
+   
+   
+   public int insRestMenu(RestFile param, int i_user) {
+	   //객체로 받기 때문에 값을 알 수 없다.
+	   if(_authFail(param.getI_rest(), i_user)) {
+		   return Const.FAIL;
+	   }
+	   System.out.println(Const.realPath);
 	   
+	   String path = Const.realPath + "/resources/img/rest/" + param.getI_rest() + "/menu/"; 
+	   
+		List<RestRecMenuVO> list = new ArrayList();
+		
+		for(MultipartFile mf : param.getMenu_pic()) {
+			RestRecMenuVO vo = new RestRecMenuVO();
+			list.add(vo);
+			
+			String saveFileNm = FileUtils.saveFile(path, mf);
+			//파일없으면 null 넘어간다 (saveFile)
+			vo.setMenu_pic(saveFileNm);
+			vo.setI_rest(param.getI_rest());
+		}
+		
+		for(RestRecMenuVO vo : list) {
+			mapper.insRestMenu(vo);
+		}
+		return Const.SUCCESS;
+   }
+   public int insRecMenus(MultipartHttpServletRequest mReq) {
+	   	int i_user = SecurityUtils.getLoginUserPk(mReq.getSession());
 		int i_rest = Integer.parseInt(mReq.getParameter("i_rest"));
+		if(_authFail(i_rest, i_user)) {
+			return Const.FAIL;
+		} //내가 쓴글 아닌데도 메뉴등록되는 것을 막기 위해. 통과되었다? 자기가 쓴글이다.
+		
 		List<MultipartFile> fileList = mReq.getFiles("menu_pic");
 		String[] menuNmArr = mReq.getParameterValues("menu_nm");
 		String[] menuPriceArr = mReq.getParameterValues("menu_price");
-		String path = mReq.getServletContext().getRealPath("/resources/img/rest/" + i_rest + "/rec_menu/");
+		String path = Const.realPath + "/resources/img/rest/" + i_rest + "/rec_menu/";
 		
 	   List<RestRecMenuVO> list = new ArrayList();
 	  
@@ -125,5 +166,19 @@ public class RestService {
 		   }
 	   }
 	   return mapper.delRestRecMenu(param);
+   }
+   
+   private boolean _authFail(int i_rest, int i_user) {
+	   RestPARAM param = new RestPARAM();
+	   param.setI_rest(i_rest);
+	   //모든 가게는 누가쓴글인지 정보가 담겨있다.(i_user)
+	   //sel로 0줄 or 1줄로 값을 가져온다.(객체하나로만 받으면 된다.)
+	   RestDMI dbResult = mapper.selRest(param); 
+	   //i_rest, i_user로만 sel 문을 받는다 
+	   if(dbResult == null || dbResult.getI_user() != i_user) {
+		   return true;
+	   }
+	   
+	   return false; //인증이 완료
    }
 }

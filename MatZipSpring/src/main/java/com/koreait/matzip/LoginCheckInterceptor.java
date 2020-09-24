@@ -2,11 +2,8 @@ package com.koreait.matzip;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
-
-import com.koreait.matzip.user.model.UserPARAM;
 
 public class LoginCheckInterceptor extends HandlerInterceptorAdapter {
 	@Override
@@ -17,15 +14,15 @@ public class LoginCheckInterceptor extends HandlerInterceptorAdapter {
 		String[] uriArr = uri.split("/");
 		
 		System.out.println("uriArr.length : "+ uriArr.length);
-		if(uriArr[1].equals("res")) {
-			return true;
-		} else if (uriArr.length < 3) {//주소가 이상한 경우
-			return false;
-		}
-		System.out.println("인터셉터!!");
 		
-		HttpSession hs = request.getSession();
-		UserPARAM loginUser = (UserPARAM)hs.getAttribute(Const.LOGIN_USER);
+		if(uri.equals("/")) {
+			return true;
+		} else if(uriArr[1].equals("res")) { //리소스(js,css,img)
+			return true;
+		}
+		
+		System.out.println("인터셉터!!");
+
 		boolean isLogout = SecurityUtils.isLogout(request);
 		
 		switch(uriArr[1]) {

@@ -32,7 +32,7 @@ public class RestInterceptor extends HandlerInterceptorAdapter{
 				return false;
 			}
 			
-			int i_user = SecurityUtils.getLoginUserPk(request);
+			int i_user = SecurityUtils.getLoginUserPk(request); //로그인한사람의 i_user
 			
 			boolean result = _authSuccess(i_rest, i_user);
 			System.out.println("=== auth result : " +result);

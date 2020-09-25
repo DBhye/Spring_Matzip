@@ -20,6 +20,7 @@ import com.koreait.matzip.ViewRef;
 import com.koreait.matzip.rest.model.RestDMI;
 import com.koreait.matzip.rest.model.RestFile;
 import com.koreait.matzip.rest.model.RestPARAM;
+import com.koreait.matzip.rest.model.RestRecMenuVO;
 
 @Controller
 @RequestMapping("/rest")
@@ -64,14 +65,21 @@ public class RestController {
 	public String detail(RestPARAM param, Model model) {
 			RestDMI data = service.selRest(param);
 			
-			model.addAttribute("menuList",service.selRestMenus(param));
+			//model.addAttribute("menuList",service.selRestMenus(param));
 			model.addAttribute("recMenuList", service.selRestRecMenus(param));
-			model.addAttribute("css",new String[] {"restDetail"});
+			model.addAttribute("css",new String[] {"restDetail", "swiper-bundle.min"});
 			model.addAttribute("data", data);
 			model.addAttribute(Const.TITLE, data.getNm());
 			model.addAttribute(Const.VIEW, "rest/restDetail"); //파일명 적는곳
 			return ViewRef.TEMP_MENU_TEMP;
 		}
+	
+	@RequestMapping("/ajaxSelMenuList")
+	@ResponseBody
+	public List<RestRecMenuVO> ajaxSerMenuList(RestPARAM param) {
+			return service.selRestMenus(param);
+			
+	}
 	@RequestMapping("/del")
 	public String del(RestPARAM param, HttpSession hs) {
 		int loginI_user = SecurityUtils.getLoginUserPk(hs);
@@ -104,6 +112,12 @@ public class RestController {
 		param.setI_user(SecurityUtils.getLoginUserPk(hs)); // 로그인유저 pk담기
 		return service.delRecMenu(param, realPath);
 	}
+	
+	@RequestMapping("/ajaxDelMenu")
+	@ResponseBody public int ajaxDelMenu(RestPARAM param) { //i_rest, seq, menu_pic
+		return service.delRestMenu(param);
+	}
+	
 	
 	@RequestMapping("/menus")
 	public String menus(@ModelAttribute RestFile param, 

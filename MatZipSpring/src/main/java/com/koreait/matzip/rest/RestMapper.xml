@@ -21,6 +21,7 @@
 		, ifnull(B.val,'') as cd_category_nm
 		, C.nm as user_nm
 		, ifnull(D.cnt,0) as cnt_favorite
+		, CASE WHEN E.i_rest IS NULL THEN 0 ELSE 1 END AS is_Favorite
 	FROM t_restaurant A
 	INNER JOIN c_code_d B
 		ON A.cd_category = B.cd
@@ -34,7 +35,11 @@
 		GROUP BY i_rest
 	) D
 	ON A.i_rest = D.i_rest
+	LEFT JOIN t_user_favorite E
+	ON A.i_rest = E.i_rest
+	AND E.i_user =  #{i_user}
 	WHERE A.i_rest = #{i_rest}
+	
 	</select>
 	
 	<select id="selRestRecMenus" parameterType="RestPARAM" resultType="RestRecMenuVO">
@@ -107,5 +112,11 @@
 	WHERE i_rest = #{i_rest}
 	</insert>
 	
+	<update id="updAddHits" parameterType="RestPARAM">
+	UPDATE t_restaurant
+	SET hits = hits + 1
+	WHERE i_rest = #{i_rest}
+	AND i_user != #{i_user};
+	</update>
 	
 </mapper>

@@ -1,6 +1,7 @@
 @charset "UTF-8";
 
 .recMenuContainer {
+	z-index: 20;
 	width: 100%;
 	height: 200px;
 	overflow-x: scroll;
@@ -73,13 +74,26 @@
 	padding: 5px 0 10px 0;
 }
 
-#carouselContainer {	
+.restaurant-detail .restaurant_title_wrap {
+	display: flex;
+	align-items: center;
+}
+.restaurant-detail .material-icons {
+	margin-left: 20px;
+	color:pink
+}
+#sectionContainerCenter {	
+	z-index: 20;
+	overflow: auto;
+}
+
+#carouselContainer {
 	transition: 1s;
 	opacity: 0;
 	z-index: -10;
 	left: 0;
 	top: 0;
-	position: absolute;
+	position: fixed;
 	width: 100%;
 	height: 100%;
 	background-color: #000A;
@@ -88,39 +102,67 @@
 	align-items: center;
 }
 
-#sectionContainerCenter {
-	z-index: 20;
-	overflow: auto;
-}
-
 #carouselContainer #imgContainer {
 	background-color: #fff;
 	width: 60%;
 	height: 80%;
 	position: relative;
+	overflow: hidden;
 }
 
-#carouselContainer .material-icons {
+.material-icons {
+	cursor: pointer;	
+}
+
+#carouselContainer > .material-icons {
 	display: inline-block;
-	position: absolute;
-	top: 40px;
-	right: 40px;
-	color: #fff;
+	position: absolute;	
+	color: white;
 	cursor: pointer;
-	font-size: 3rem;
+	font-size: 2rem;
+	background-color: black;
+	top: 20px;
+	right: 20px;
 }
 
 .swiper-container {
 	height: 100%;
 }
-.swiper-container .swiper-wrapper .swiper-slide {
+
+
+.swiper-container 
+.swiper-wrapper 
+.swiper-slide {
+	
 	display: flex;
-	justify-content: center;
-	align-items: center;
+    justify-content: center;
+    align-items: center;	
+}    
+    
+.swiper-container 
+.swiper-wrapper 
+.swiper-slide
+img {
+	width: 100%;
+	height: auto;
+	overflow: hidden;
 }
 
-.swiper-container .swiper-wrapper .swiper-slide img {
-	width: 100%;
-	overflow: hidden;
-	
+.swiper-container .imgDel {
+	position: absolute;
+	left: 10px;
+	top: 10px;
+	z-index: 100;
+	background-color: white;
+}
+
+.swiper-container .imgDel .material-icons {
+	font-size: 3rem;
+	color: black;
+}
+
+.swiper-slide .delIconContainer {
+	position: absolute;
+	top: 10px;
+	left: 10px;
 }

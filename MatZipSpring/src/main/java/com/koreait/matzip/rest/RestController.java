@@ -2,6 +2,7 @@ package com.koreait.matzip.rest;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,10 +63,14 @@ public class RestController {
 			return "redirect:/rest/map";
 		}
 	@RequestMapping("/detail")
-	public String detail(RestPARAM param, Model model) {
+	public String detail(RestPARAM param, Model model, HttpServletRequest req) {
+		
+			service.updAddHits(param, req);
 			RestDMI data = service.selRest(param);
 			
 			//model.addAttribute("menuList",service.selRestMenus(param));
+			int i_user = SecurityUtils.getLoginUserPk(req);
+			param.setI_user(i_user);
 			model.addAttribute("recMenuList", service.selRestRecMenus(param));
 			model.addAttribute("css",new String[] {"restDetail", "swiper-bundle.min"});
 			model.addAttribute("data", data);

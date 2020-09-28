@@ -20,6 +20,8 @@ public interface RestMapper { //인터페이스 친구는 기본으로 public �
 	List<RestRecMenuVO> selRestMenus(RestPARAM param);
 	List<RestRecMenuVO> selRestRecMenus(RestPARAM param);
 	
+	int updAddHits(RestPARAM param);
+	
 	int delRestRecMenu(RestPARAM param);
 	int delRestMenu(RestPARAM param);
 	int delRest(RestPARAM param);

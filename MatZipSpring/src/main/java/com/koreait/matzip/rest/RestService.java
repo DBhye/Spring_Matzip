@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +44,7 @@ public class RestService {
    }
    
    
-   List<CodeVO> selCategoryList() {
+   public List<CodeVO> selCategoryList() {
 	   CodeVO p = new CodeVO();
 	   p.setI_m(1); //음식점 카테고리 코드 = 1
 	   
@@ -52,6 +55,23 @@ public class RestService {
 	   return mapper.insRest(param);
    }
    
+   public void updAddHits(RestPARAM param, HttpServletRequest req) {
+	   //글에 접속한 사람(요청을 보낸사람)의 ip값을 알아내야한다.
+	   String myIp = req.getRemoteAddr();
+	   ServletContext ctx = req.getServletContext();
+	   //페이지 컨텍스트, 리퀘스트, 세션 , 어플리케이션 역할 구별해서 생각하기	   
+	   String currentReadIp = (String)ctx.getAttribute(Const.CURRENT_REST_READ_IP + param.getI_rest());
+	   if(currentReadIp == null || !currentReadIp.contentEquals(myIp)) {
+		   
+		   int i_user = SecurityUtils.getLoginUserPk(req);
+		   
+		   param.setI_user(i_user);
+		   //내가 쓴 글이면 조회수 안올라가게 쿼리문으로 막는다.
+		   //조회수 올림 처리 할것임
+		   mapper.updAddHits(param);
+		   ctx.setAttribute(Const.CURRENT_REST_READ_IP + param.getI_rest(), myIp);
+	   }
+   }
    public RestDMI selRest(RestPARAM param) {
 	   return mapper.selRest(param);
    }
@@ -68,7 +88,7 @@ public class RestService {
 //	   return mapper.delRestMenu(param);
 //   }
    
-   
+  
    
    public int insRestMenu(RestFile param, int i_user) {
 	   //객체로 받기 때문에 값을 알 수 없다.

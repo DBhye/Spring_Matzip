@@ -3,9 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-
-
-<div style="height:100%;">
+<div>
 	<div class="recMenuContainer">
 		<c:forEach items="${recMenuList}" var="item">
 			<div class="recMenuItem" id="recMenuItem_${item.seq}">
@@ -54,12 +52,14 @@
 			<div class="restaurant-detail">
 				<div id="detail-header">
 					<div class="restaurant_title_wrap">
-						<span class="title">
-							<h1 class="restaurant_name">${data.nm}</h1>
-						</span>
+						<h1 class="restaurant_name">${data.nm}</h1>
+						<c:if test="${loginUser != null }"> 
+						
+						<span id="favorite" class="material-icons">favorite_border</span>
+						</c:if>
 					</div>
 					<div class="status branch_none">
-						<span class="cnt hit">${data.hits}</span>
+						<span class="cnt hit">${data.hits}</span>					
 						<span class="cnt favorite">${data.cnt_favorite}</span>
 					</div>
 				</div>
@@ -83,25 +83,6 @@
 								<th>메뉴</th>
 								<td>	
 									<div id="conMenuList" class="menuList">
-									<c:if test="fn:length(menuList) > 0">
-										<c:forEach var="i" begin="0" end="${fn:length(menuList) > 3 ? 2 : fn:length(menuList) - 1}">
-											<div class="menuItem">
-												<img src="/res/img/rest/${data.i_rest}/menu/${menuList[i].menu_pic}">
-												<c:if test="${loginUser.i_user == data.i_user}">
-													<div class="delIconContainer" onclick="delMenu(${menuList[i].seq})">
-														<span class="metrial-icons">clear</span>
-													</div>
-												</c:if>
-											</div>
-										</c:forEach>
-										</c:if>
-										<c:if test="${fn:length(menuList) > 3}">
-											<div class="menuItem bg_black">
-												<div class="moreCnt">
-													+${fn:length(menuList) - 3}
-												</div>
-											</div>
-										</c:if>
 									</div>
 								</td>
 							</tr>
@@ -112,15 +93,23 @@
 		</div>
 	</div>
 </div>
+
 <div id="carouselContainer">
 	<div id="imgContainer">
-	<div class="swiper-container">
-		<div id="swiperWrapper" class="swiper-wrapper">
-		</div>
+		<div class="swiper-container">
+			<div id="swiperWrapper" class="swiper-wrapper">
+			</div>
+			<!-- If we need pagination -->
 			<div class="swiper-pagination"></div>
 			
+			<!-- If we need navigation buttons -->
 			<div class="swiper-button-prev"></div>
 			<div class="swiper-button-next"></div>
+			<c:if test="${loginUser.i_user == data.i_user}">
+				<div class="imgDel">
+					<span id="favorite" class="material-icons" onclick="toggleFavorite">delete</span>		
+				</div>
+			</c:if>
 		</div>
 	</div>
 	<span class="material-icons" onclick="closeCarousel()">clear</span>
@@ -129,7 +118,28 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
 <script>
-
+	function delMenu() {
+		if(!confirm('삭제하시겠습니까?')) { return }		
+		const obj = menuList[mySwiper.realIndex]
+		
+		if(obj != undefined) {
+			//서버 삭제 요청!
+			axios.get('/rest/ajaxDelMenu', {
+				params: {
+					i_rest: ${data.i_rest},
+					seq: obj.seq,
+					menu_pic: obj.menu_pic
+				}
+			}).then(function(res) {
+				if(res.data == 1) {
+					menuList.splice(mySwiper.realIndex, 1)
+					refreshMenu()
+				} else {
+					alert('메뉴를 삭제할 수 없습니다.')
+				}
+			})	
+		}
+	}
 	function closeCarousel() {
 		carouselContainer.style.opacity = 0
 		carouselContainer.style.zIndex = -10
@@ -140,30 +150,32 @@
 		carouselContainer.style.opacity = 1
 		carouselContainer.style.zIndex = 40
 	}
-
-		mySwiper = new Swiper('.swiper-container',{
-		direction: 'horizontal',
-		loop: true,
-		pagination: {
-			el:'.swiper-pagination',
-		},
-		navigation: {
-			nextEl: '.swiper-button-next',
-			prevEl: '.swiper-button-prev',
-		},
-	})
-	
-	
-	var menuList = [] 
-	
+		
+	var mySwiper = new Swiper('.swiper-container', {
+		  // Optional parameters
+		  direction: 'horizontal',
+		  loop: true,
+		
+		  // If we need pagination
+		  pagination: {
+		    el: '.swiper-pagination',
+		  },
+		
+		  // Navigation arrows
+		  navigation: {
+		    nextEl: '.swiper-button-next',
+		    prevEl: '.swiper-button-prev',
+		  }
+		})
+	var menuList = []
 	function ajaxSelMenuList() {
-		axios.get('/rest/ajaxSelMenuList' , {
+		axios.get('/rest/ajaxSelMenuList', {
 			params: {
 				i_rest: ${data.i_rest}
 			}
 		}).then(function(res) {
 			menuList = res.data
-			refreshMenu()
+			refreshMenu()			
 		})
 	}
 	
@@ -171,15 +183,16 @@
 		conMenuList.innerHTML = ''
 		swiperWrapper.innerHTML = ''
 		
-		menuList.forEach(function(item,idx) {
+		menuList.forEach(function(item, idx) {
 			makeMenuItem(item, idx)
 		})
 	}
 	
-	function makeMenuItem(item,idx) {
+	function makeMenuItem(item, idx) {
+		//메인 화면에서 메뉴 이미지 디스플레이 ------------------------- [start]
 		const div = document.createElement('div')
 		div.setAttribute('class', 'menuItem')
-		
+				
 		const img = document.createElement('img')
 		img.setAttribute('src', `/res/img/rest/${data.i_rest}/menu/\${item.menu_pic}`)
 		img.style.cursor = 'pointer'
@@ -187,49 +200,28 @@
 			openCarousel(idx + 1)
 		})
 		
+		div.append(img)
+		
+			
+		conMenuList.append(div)
+		//메인 화면에서 메뉴 이미지 디스플레이 ------------------------- [end]
+		
+		
+		//팝업 화면에서 메뉴 이미지 디스플레이 ------------------------- [start]
 		const swiperDiv = document.createElement('div')
 		swiperDiv.setAttribute('class', 'swiper-slide')
 		
 		const swiperImg = document.createElement('img')
 		swiperImg.setAttribute('src', `/res/img/rest/${data.i_rest}/menu/\${item.menu_pic}`)
 		
+		
+		
 		swiperDiv.append(swiperImg)
 		
 		mySwiper.appendSlide(swiperDiv);
-		div.append(img)
-		<c:if test="${loginUser.i_user == data.i_user}">
-			const delDiv = document.createElement('div')
-			delDiv.setAttribute('class', 'delIconContainer')
-			delDiv.addEventListener('click', function() {
-				if(idx > -1){
-					//삭제요청!
-					axios.get('/rest/ajaxDelMenu', {
-						params: {
-							i_rest : ${data.i_rest},
-							seq: item.seq,
-							menu_pic: item.menu_pic
-						}
-					}).then(function(res) {
-						if(res.data == 1) {
-							menuList.splice(idx, 1)
-							refreshMenu()
-						}  else {
-							alert('메뉴를 삭제할 수 없습니다.')
-						}
-					})
-				}
-			})
-			const span = document.createElement('span')
-			span.setAttribute('class', 'material-icons')
-			span.innerText = 'clear'
-			
-			delDiv.append(span)
-			div.append(delDiv)
-		</c:if>
 		
-		conMenuList.append(div)
+		//팝업 화면에서 메뉴 이미지 디스플레이 ------------------------- [end]
 	}
-	
 	<c:if test="${loginUser.i_user == data.i_user}">
 	function delRecMenu(seq) {
 		if(!confirm('삭제하시겠습니까?')) {
@@ -241,7 +233,6 @@
 			params: {
 				i_rest: ${data.i_rest},
 				seq: seq
-				
 			}
 		}).then(function(res) {
 			console.log(res)
@@ -253,11 +244,10 @@
 		})
 	}
 	
-	
 	var idx = 0;
 	function addRecMenu() {
 		var div = document.createElement('div')
-		div.setAttribute('id',"recMenu_" + idx++)
+		div.setAttribute('id', 'recMenu_' + idx++)
 		
 		var inputNm = document.createElement('input')
 		inputNm.setAttribute('type', 'text')
@@ -265,17 +255,16 @@
 		var inputPrice = document.createElement('input')
 		inputPrice.setAttribute('type', 'number')
 		inputPrice.setAttribute('name', 'menu_price')
-		inputPrice.value= '0'
+		inputPrice.value = '0'
 		var inputPic = document.createElement('input')
 		inputPic.setAttribute('type', 'file')
 		inputPic.setAttribute('name', 'menu_pic')
 		var delBtn = document.createElement('input')
 		delBtn.setAttribute('type', 'button')
-		delBtn.setAttribute('value', 'X')
+		delBtn.setAttribute('value', 'X')		
 		delBtn.addEventListener('click', function() {
 			div.remove()
-		})
-		
+		})		
 		div.append('메뉴: ')
 		div.append(inputNm)
 		div.append(' 가격: ')
@@ -286,7 +275,6 @@
 		
 		recItem.append(div)
 	}
-	
 	function isDel() {
 		if(confirm('삭제 하시겠습니까?')) {
 			location.href = '/rest/del?i_rest=${data.i_rest}'
@@ -295,7 +283,7 @@
 	addRecMenu()
 	
 	</c:if>
-
+	
 	ajaxSelMenuList()
 	
 </script>

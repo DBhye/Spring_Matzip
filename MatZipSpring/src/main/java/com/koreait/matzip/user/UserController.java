@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.koreait.matzip.Const;
+import com.koreait.matzip.SecurityUtils;
 import com.koreait.matzip.ViewRef;
 import com.koreait.matzip.user.model.UserPARAM;
 import com.koreait.matzip.user.model.UserVO;
@@ -86,5 +87,26 @@ public class UserController {
 			System.out.println("user_id "+ param.getUser_id());
 			int result = service.login(param);
 			return String.valueOf(result); //이것 자체를 리턴해준다. //responsebody를 안붙이면 JSP 파일이 열렸다.
-		}											//이 자체로 응답이다. 서버한테 첫페이지 빼고 데이터만 요구하여 이런식으로 개발을 많이한다.
-}
+		}
+		//이 자체로 응답이다. 서버한테 첫페이지 빼고 데이터만 요구하여 이런식으로 개발을 많이한다.
+		@RequestMapping(value="/ajaxToggleFavorite", method=RequestMethod.GET)
+		@ResponseBody
+		public int ajaxToggleFavorite(UserPARAM param, HttpSession hs) {
+			System.out.println("==> ajaxToggleFavorite");
+			int i_user = SecurityUtils.getLoginUserPk(hs);
+			param.setI_user(i_user);
+			return service.ajaxToggleFavorite(param);
+		}
+			@RequestMapping("/favorite")
+			public String favorite(Model model, HttpSession hs) {
+				int i_user = SecurityUtils.getLoginUserPk(hs);
+				UserPARAM param = new UserPARAM();
+				param.setI_user(i_user);
+				
+				model.addAttribute("data", service.selFavoriteList(param));
+				model.addAttribute(Const.CSS, new String[]{"userFavorite"});
+				model.addAttribute(Const.TITLE, "찜");
+				model.addAttribute(Const.VIEW,"user/favorite");
+				return ViewRef.TEMP_MENU_TEMP;
+				}
+		}

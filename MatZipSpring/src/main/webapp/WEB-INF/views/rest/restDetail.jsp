@@ -118,6 +118,34 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
 <script>
+	
+	function toggleFavorite() {
+		console.log('favorite : ' + favorite.innerText.trim())
+		console.log('favorite : ' + (favorite.innerText.trim() == 'favorite'))
+		
+		let parameter = {
+			params: {
+				i_rest: ${data.i_rest}
+			}
+		}
+		var icon = favorite.innerText.trim()
+		
+		switch(icon) {
+		case 'favorite':
+			parameter.params.proc_type = 'del'
+			break;
+		case 'favorite_border':
+			parameter.params.proc_type = 'ins'
+			break;
+		}
+		
+		axios.get('/user/ajaxToggleFavorite', parameter).then(function(res) {
+			if(res.data == 1) {
+				favorite.innerText = (icon == 'favorite' ? 'favorite_border' : 'favorite')
+			}
+		})
+	}
+	
 	function delMenu() {
 		if(!confirm('삭제하시겠습니까?')) { return }		
 		const obj = menuList[mySwiper.realIndex]

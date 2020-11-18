@@ -38,6 +38,7 @@ public class UserController {
 		model.addAttribute(Const.VIEW, "user/login");
 		
 		return ViewRef.TEMP_DEFAULT;
+		
 	} 
 		@RequestMapping(value="/login", method = RequestMethod.POST)
 		public String login(UserPARAM param, HttpSession hs, RedirectAttributes ra) {
